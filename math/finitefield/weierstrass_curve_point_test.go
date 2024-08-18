@@ -10,19 +10,19 @@ type Dummy struct{}
 
 func (Dummy) A() *big.Int {
 	b := new(big.Int)
-	b.SetString("0", 16)
+	b.SetString("0", 10)
 	return b
 }
 
 func (Dummy) B() *big.Int {
 	b := new(big.Int)
-	b.SetString("7", 16)
+	b.SetString("7", 10)
 	return b
 }
 
 func (Dummy) P() *big.Int {
 	b := new(big.Int)
-	b.SetString("17", 16)
+	b.SetString("17", 10)
 	return b
 }
 
@@ -30,8 +30,8 @@ func Generator() WeierstrassCurvePoint[Dummy] {
 	x := new(big.Int)
 	y := new(big.Int)
 
-	x.SetString("15", 16)
-	y.SetString("13", 16)
+	x.SetString("15", 10)
+	y.SetString("13", 10)
 
 	return WeierstrassCurvePoint[Dummy](maybe.Something(NotInfinity[Dummy]{x, y}))
 }
@@ -41,6 +41,14 @@ func TestDefaultWeierstrassCurve(t *testing.T) {
 	_, ok := maybe.Extract(maybe.Maybe[NotInfinity[Dummy]](c))
 	if ok {
 		t.Error("A default WeierstrassCurvePoint should be the point at infinity")
+	}
+}
+
+func TestPointDoubling(t *testing.T) {
+	result := Generator().Add(Generator())
+	expected := WeierstrassCurvePoint[Dummy](maybe.Something(NotInfinity[Dummy]{big.NewInt(2), big.NewInt(10)}))
+	if !result.Equal(expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
 	}
 }
 
