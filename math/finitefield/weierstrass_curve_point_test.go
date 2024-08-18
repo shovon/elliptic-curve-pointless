@@ -74,3 +74,11 @@ func TestScalarMultiplyTwo(t *testing.T) {
 		t.Errorf("Expected %v, but got %v", expected, result)
 	}
 }
+
+func TestScalarMultiplyThree(t *testing.T) {
+	result := Generator().ScalarMultiply(big.NewInt(3))
+	expected := WeierstrassCurvePoint[Dummy](maybe.Something(NotInfinity[Dummy]{big.NewInt(8), big.NewInt(3)}))
+	if !result.Equal(expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}

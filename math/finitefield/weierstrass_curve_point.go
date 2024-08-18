@@ -71,9 +71,9 @@ func (c WeierstrassCurvePoint[T]) Add(i WeierstrassCurvePoint[T]) WeierstrassCur
 	y := new(big.Int)
 
 	if p1.equal(p2) {
-		fmt.Printf("Equal! %v %v\n", c, i)
+		// fmt.Printf("Equal! %v %v\n", c, i)
 		if p1[1].Cmp(big.NewInt(0)) == 0 {
-			return WeierstrassCurvePoint[T](maybe.Nothing[NotInfinity[T]]())
+			return WeierstrassCurvePoint[T]{}
 		}
 		// Calculate the slope (m) of the tangent line
 		numerator := new(big.Int).Mul(big.NewInt(3), new(big.Int).Mul(p1[0], p1[0]))
@@ -82,10 +82,13 @@ func (c WeierstrassCurvePoint[T]) Add(i WeierstrassCurvePoint[T]) WeierstrassCur
 		m.Mul(numerator, modInverse(denominator, curve.P()))
 		m.Mod(m, curve.P())
 	} else {
-		fmt.Printf("Not equal! %v %v\n", c, i)
+		// fmt.Printf("Not equal! %v %v\n", c, i)
 		// Calculate the slope (m) of the secant line
 		numerator := new(big.Int).Sub(p2[1], p1[1])
 		denominator := new(big.Int).Sub(p2[0], p1[0])
+		if denominator.Cmp(big.NewInt(0)) == 0 {
+			return WeierstrassCurvePoint[T]{}
+		}
 		m.Mul(numerator, modInverse(denominator, curve.P()))
 		m.Mod(m, curve.P())
 	}
@@ -106,25 +109,15 @@ func (c WeierstrassCurvePoint[T]) Add(i WeierstrassCurvePoint[T]) WeierstrassCur
 }
 
 func (c WeierstrassCurvePoint[T]) ScalarMultiply(n *big.Int) WeierstrassCurvePoint[T] {
-	if n.Cmp(big.NewInt(0)) == 0 {
-		// Point at infinity
-		return WeierstrassCurvePoint[T]{}
-	}
-
-	var r0 WeierstrassCurvePoint[T]
-	r1 := c
-
+	result := WeierstrassCurvePoint[T]{}
+	temp := c
 	for i := 0; i < n.BitLen(); i++ {
 		if n.Bit(i) == 1 {
-			r1 = r0.Add(r1)
-			r0 = r0.Add(r0)
-		} else {
-			r0 = r0.Add(r1)
-			r1 = r1.Add(r1)
+			result = result.Add(temp)
 		}
+		temp = temp.Add(temp)
 	}
-
-	return r0
+	return result
 }
 
 // Implement the fmt.Formatter interface for MyType
