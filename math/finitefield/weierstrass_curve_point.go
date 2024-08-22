@@ -93,7 +93,7 @@ func (c WeierstrassCurvePoint[T]) Add(i WeierstrassCurvePoint[T]) WeierstrassCur
 		m.Mod(m, curve.P())
 	}
 
-	// Calculate x3 = m^2 - 2x1 (mod p)
+	// Calculate x3 = m^2 - x2 - x1 (mod p)
 	x.Mul(m, m)
 	x.Sub(x, p1[0])
 	x.Sub(x, p2[0])
